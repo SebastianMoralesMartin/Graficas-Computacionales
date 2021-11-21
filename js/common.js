@@ -40,13 +40,13 @@ class Game{
         
         // create an isometric camera
         this.camera = new THREE.OrthographicCamera(-5, 5, 5, -5, -1, 100);
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement)
+        //this.controls = new OrbitControls(this.camera, this.renderer.domElement)
         this.camera.position.z = 5;
         this.camera.position.y = 0;
         this.camera.position.x = 0;
         this.camera.lookAt(this.scene.position); // point at origin
 
-        this.controls.update()
+        //this.controls.update()
 
         
     
@@ -75,7 +75,7 @@ class Game{
         let delta = (elapsed - this._previousElapsed) / 1000.0;
         delta = Math.min(delta, 0.25); // maximum delta of 250 ms
         this._previousElapsed = elapsed;
-        this.controls.update()
+        //this.controls.update()
     
         this.update(delta);
         this.renderer.render(this.scene, this.camera);
@@ -85,33 +85,4 @@ class Game{
     toggleDebug() {};
 };
 
-class Utils
-{
-    static createShadow(mesh, material) 
-    {
-        let params = mesh.geometry.parameters;
-        mesh.geometry.computeBoundingSphere();
-        let geo = mesh.geometry.type === 'BoxGeometry'
-            ? new THREE.PlaneGeometry(params.width, params.depth)
-            : new THREE.CircleGeometry(mesh.geometry.boundingSphere.radius, 24);
-    
-        let shadow = new THREE.Mesh(geo, material);
-        shadow.rotation.x = -Math.PI / 2;
-        shadow.position.x = mesh.position.x;
-        shadow.position.z = mesh.position.z;
-    
-        return shadow;
-    };
-    
-    static updateShadow(shadow, target) 
-    {
-        shadow.position.x = target.position.x;
-        shadow.position.z = target.position.z;
-        shadow.visible = target.position.y >= 0;
-    
-        shadow.scale.x = target.scale.x;
-        shadow.scale.y = target.scale.z;
-    };
-}
-
-export {Game, Utils}
+export {Game}

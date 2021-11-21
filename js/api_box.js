@@ -2,19 +2,34 @@ import * as THREE from '../../libs/three.js/r131/three.module.js'
 import { TransformControls } from '../../libs/three.js/r131/controls/TransformControls.js'
 import { GLTFLoader } from '../../libs/three.js/r131/loaders/GLTFLoader.js';
 import { FBXLoader } from '../../libs/three.js/r131/loaders/FBXLoader.js';
-import { Game, Utils } from './common.js';
+import { Game} from './common.js';
 
 function loadGame() {
     const game = new Game();
+    var listIco = []
+
+    //
+    function isocaedro(scene, thing, cords){
+        let icoEdges, icoDrawable
+        console.log(typeof thing)
+        icoEdges = new THREE.EdgesGeometry(thing)
+        icoDrawable = new THREE.LineSegments(icoEdges, new THREE.LineBasicMaterial({ color: 0xffffff }))
+        icoDrawable.position.set(cords[0], cords[1], cords[2])
+        return icoDrawable
+    }
+
+    
 
     game.init = function () {
-
         this.scene.background = new THREE.Color(0x0)
 
         this.light = new THREE.AmbientLight(0xffffff)
         this.scene.add(this.light)
 
         //Circle enemy
+        //var circle = crearCirculo(this.scene)
+
+
         this.circleTest = new THREE.CircleGeometry(0.25, 32);
         this.edges = new THREE.EdgesGeometry(this.circleTest);
         this.line = new THREE.LineSegments(this.edges, new THREE.LineBasicMaterial({ color: 0x63ff63 }));
@@ -33,6 +48,11 @@ function loadGame() {
         this.line3.position.x = -2
         this.line3.position.y = 2
         this.line3.position.z = 0
+
+        this.scene.add(this.line)
+        this.scene.add(this.line2)
+        this.scene.add(this.line3)
+
 
         //circle enemy END
 
@@ -150,8 +170,10 @@ function loadGame() {
 
 
         loader.load('ship/Ship1.fbx', (object) => {
-            object.scale.set(.1, .1, .1)
-            object.position.set(-2, -3, 1)
+            object.scale.set(.05, .05, .1)
+            object.position.set(3.5, 0, 0)
+
+            object.rotation.z = 4.8
 
 
             this.scene.add(object);
@@ -168,18 +190,28 @@ function loadGame() {
 
         //Icosaedro
 
-        
-        this.icosaedro= new THREE.IcosahedronGeometry(.5)
-        this.icoEdges = new THREE.EdgesGeometry(this.icosaedro)
-        this.icoDrawable = new THREE.LineSegments(this.icoEdges, new THREE.LineBasicMaterial({ color: 0xffffff }))
-        this.icoDrawable.position.set(3.8, -1, 3.9)
 
+        this.icosaedro = new THREE.IcosahedronGeometry(.5)
+        // this.icoEdges = new THREE.EdgesGeometry(this.icosaedro)
+        // this.icoDrawable = new THREE.LineSegments(this.icoEdges, new THREE.LineBasicMaterial({ color: 0xffffff }))
+        // this.icoDrawable.position.set(3.8, -1, 3.9)
+
+
+        for (let i = 0; i < 3; i++) {
+            listIco.push(isocaedro(this.scene, this.icosaedro, [1.8+i, -1, 3.9+i]))
+        }
+        //isocaedro(this.scene, this.icosaedro, [3.8, -1, 3.9])
+        console.log(listIco)
         //Tetrahedron
 
-        this.tetraedro= new THREE.TetrahedronGeometry(.5)
+        this.tetraedro = new THREE.TetrahedronGeometry(.5)
         this.tetraEdges = new THREE.EdgesGeometry(this.tetraedro)
         this.tetDrawable = new THREE.LineSegments(this.tetraEdges, new THREE.LineBasicMaterial({ color: 0xffffff }))
         this.tetDrawable.position.set(3.8, -3, 3.9)
+    
+        listIco.forEach(ico => {
+            this.scene.add(ico)
+        });
 
 
 
@@ -188,18 +220,17 @@ function loadGame() {
 
 
         this.debug = false;
-        this.scene.add(this.line);
-        this.scene.add(this.line2)
-        this.scene.add(this.line3)
+        //this.scene.add(circle)
         this.scene.add(this.squareLine)
         this.scene.add(this.squareLine2)
         this.scene.add(this.squareLine3)
         this.scene.add(this.diamondLine)
         this.scene.add(this.diamondLine2)
-        this.scene.add(this.drawable)
-        this.scene.add(this.polyDrawable)
-        this.scene.add(this.icoDrawable)
-        this.scene.add(this.tetDrawable)
+        //this.scene.add(this.drawable)
+        //this.scene.add(this.polyDrawable)
+        //this.scene.add(this.icoDrawable)
+        //this.scene.add(this.tetDrawable)
+
         this.scene.add(this.hexDrawable)
         this.scene.add(this.hexDraw2)
         this.scene.add(this.hexDraw3)
@@ -233,14 +264,21 @@ function loadGame() {
         this.hexDraw4.rotation.x += (Math.PI / 76) * delta
         this.hexDraw4.rotation.y += (Math.PI / 2) * delta
         this.hexDraw4.rotation.z -= (Math.PI / 3) * delta
-        
+
         this.polyDrawable.rotation.x -= (Math.PI / 3) * delta
         this.polyDrawable.rotation.y -= (Math.PI / 3) * delta
         this.polyDrawable.rotation.z += (Math.PI / 3) * delta
-                   
-        this.icoDrawable.rotation.x += (Math.PI / 3) * delta
-        this.icoDrawable.rotation.y += (Math.PI / 3) * delta
-        this.icoDrawable.rotation.z -= (Math.PI / 3) * delta
+
+        listIco.forEach(ico => {
+             ico.rotation.x += (Math.PI / 3) * delta
+             ico.rotation.y += (Math.PI / 3) * delta
+            ico.rotation.z -= (Math.PI / 3) * delta
+            ico.position.x += 0.4
+        });
+
+        // this.icoDrawable.rotation.x += (Math.PI / 3) * delta
+        // this.icoDrawable.rotation.y += (Math.PI / 3) * delta
+        // this.icoDrawable.rotation.z -= (Math.PI / 3) * delta
 
         this.tetDrawable.rotation.x -= (Math.PI / 3) * delta
         this.tetDrawable.rotation.y += (Math.PI / 3) * delta
@@ -254,6 +292,30 @@ function loadGame() {
 
     game.init();
     game.tick();
+}
+function crearCirculo(scene) {
+    this.circleTest = new THREE.CircleGeometry(0.25, 32);
+    this.edges = new THREE.EdgesGeometry(this.circleTest);
+    this.line = new THREE.LineSegments(this.edges, new THREE.LineBasicMaterial({ color: 0x63ff63 }));
+    this.line.position.x = -2
+    this.line.position.y = 2
+    this.line.position.z = 0
+
+    this.line.rotation.x = 1
+
+    this.line2 = new THREE.LineSegments(this.edges, new THREE.LineBasicMaterial({ color: 0x63ff63 }));
+    this.line2.position.x = -2
+    this.line2.position.y = 2
+    this.line2.position.z = 0
+
+    this.line3 = new THREE.LineSegments(this.edges, new THREE.LineBasicMaterial({ color: 0x63ff63 }));
+    this.line3.position.x = -2
+    this.line3.position.y = 2
+    this.line3.position.z = 0
+
+    scene.add(this.line)
+    scene.add(this.line2)
+    scene.add(this.line3)
 }
 
 window.onload = function () {
