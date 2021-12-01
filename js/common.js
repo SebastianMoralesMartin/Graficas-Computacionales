@@ -39,7 +39,7 @@ class Game{
         this.scene = new THREE.Scene();
         
         // create an isometric camera
-        this.camera = new THREE.OrthographicCamera(-5, 5, 5, -5, -1, 100);
+        this.camera = new THREE.OrthographicCamera(-8, 8, 8, -8, -1, 100);
         //this.controls = new OrbitControls(this.camera, this.renderer.domElement)
         this.camera.position.z = 5;
         this.camera.position.y = 0;
