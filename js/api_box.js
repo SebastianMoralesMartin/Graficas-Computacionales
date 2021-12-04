@@ -15,12 +15,13 @@ function loadGame() {
     var diamondList = []
     var grades = 0
     var gradesReverse = 360
-    var gradosNave = 0
+    var gradosNave = 1
     var isoDegrees = 30
     var offCenter = 0
     var offCenterDiamond = 0
     var offCenterSquare = 0
-
+    var radioNave = 6.5
+    var radioShot = 6.5
     var creciendoCirculo = true
     var creciendoSquare = true
     var creciendoDiamond = true
@@ -75,13 +76,13 @@ function loadGame() {
     }
 
     function disparo(cords) {
-        let geometry, material, cone
-        geometry = new THREE.ConeGeometry(0.1, 0.5, 32)
+        let geometry, material, shot
+        radioShot = radioNave
+        geometry = new THREE.CircleGeometry(0.1, 32)
         material = new THREE.MeshBasicMaterial({ color: "0xffffff" })
-        cone = new THREE.Mesh(geometry, material)
-        cone.rotation.z = 1.65
-        cone.position.set(cords[0], cords[1], 0)
-        return cone
+        shot = new THREE.Mesh(geometry, material)
+        shot.position.set(cords[0], cords[1], 0)
+        return shot
 
     }
 
@@ -220,46 +221,56 @@ function loadGame() {
 
             document.addEventListener("keydown", onKeyDown, false)
             function onKeyDown(event) {
+
                 var code = event.which
                 if (code == 37) { // Left arrow
-                    if (nave.position.x >= 3) {
-                        nave.position.x -= 0.25
+                    if (radioNave >= 3) {
+                        radioNave -= 0.25
+                        nave.position.x = radioNave * (Math.cos(gradosNave / (180 / Math.PI)))
+                        nave.position.y = radioNave * (Math.sin(gradosNave / (180 / Math.PI)))
+    
                     }
 
                 } if (code == 39) { // Right arrow
-                    if (nave.position.x < 7) {
-                        //console.log("X antes de sumar: " + nave.position.x)
+                    if (radioNave < 7) {
+                        radioNave +=  0.25
                         nave.position.x += 0.25
-                        //console.log("X despues de sumar: " + nave.position.x)
+                        nave.position.x = radioNave * (Math.cos(gradosNave / (180 / Math.PI)))
+                        nave.position.y = radioNave * (Math.sin(gradosNave / (180 / Math.PI)))
+
                     }
 
                 } if (code == 32) { // Spacebar (fire)++
 
                     if (coneList.length < 1) {
-                        // var sonido = new Audio('disparo.wav')
-                        // sonido.play()
                         disparoSonido.play()
-                        let cone
-                        cone = disparo([nave.position.x, nave.position.y])
+                        let shot
+                        shot = disparo([nave.position.x, nave.position.y])
                         disparando = true
-                        coneList.push(cone)
+                        coneList.push(shot)
                     }
                 } if (code == 40) { // Arrow Down
-                    
-
-
+                    //Queremos reducir los grados; la camara gira counter-clockwise.
                     // x = cx + r * cos(a)
+                    // grados * (Math.PI / 180)
                     // y = cy + r * sin(a)
+                    gradosNave += 2.275
+                    nave.position.x = radioNave * (Math.cos(gradosNave / (180 / Math.PI)))
+                    nave.position.y = radioNave * (Math.sin(gradosNave / (180 / Math.PI)))
 
-
+                    nave.rotation.z +=0.04
                     game.camera.rotation.z += 0.04
-                    gradosNave += 1
-                    nave.position.x.set()
+
 
                 } if (code == 38) { // Arrow Up
+                    //Queremos aumentar los grados; la camara gira clockwise.
                     game.camera.rotation.z -= 0.04
-                    gradosNave -= 1
-                    nave.position.set()
+                    gradosNave -= 2.275
+
+                    nave.position.x = radioNave * (Math.cos(gradosNave / (180 / Math.PI)))
+                    nave.position.y = radioNave * (Math.sin(gradosNave / (180 / Math.PI)))
+                    nave.rotation.z -=0.04
+
                 }
                 if(gradosNave < 0){
                     gradosNave = 360
@@ -391,22 +402,32 @@ function loadGame() {
         this.polyDrawable.rotation.z += (Math.PI / 3) * delta
 
         if (coneList.length > 0) {
-            coneList.forEach(cone => {
-                this.scene.add(cone)
+            coneList.forEach(shot => {
+                this.scene.add(shot)
 
             })
         }
-        coneList.forEach((cone) => {
-            cone.position.x -= 0.2
-            trayectoriaBala = cone.position.x
-            if (cone.position.x <= 0) {
+//-------------------------------------SHOT---------------------------
+        coneList.forEach((shot) => {
+            // nave.position.x = radio * (Math.cos(gradosNave / (180 / Math.PI)))
+            // nave.position.y = radio * (Math.sin(gradosNave / (180 / Math.PI)))
+            // nave.rotation.z -=0.04
+            radioShot -= 0.2
+            shot.position.x = (radioShot) * (Math.cos(gradosNave / (180 / Math.PI)))
+            shot.position.y = (radioShot) * (Math.sin(gradosNave / (180 / Math.PI)))
+
+
+            //shot.position.x -= 0.2
+            
+            trayectoriaBala = shot.position.x
+            if (radioShot <= 0.5) {
                 coneList.pop()
-                game.scene.remove(cone)
+                game.scene.remove(shot)
                 disparando = false
             }
         })
-        /*coneList.forEach((cone)=>{
-            this.scene.add(cone)
+        /*coneList.forEach((shot)=>{
+            this.scene.add(shot)
         })*/
 
 
@@ -422,16 +443,18 @@ function loadGame() {
                 let bala = coneList[0]
                 var balaX = bala.position.x - 0.25
                 let balaY = bala.position.y
+                console.log(coneList[0].position.x)
 
                 //impacto
-                if ((circle.position.x + .25 > trayectoriaBala && circle.position.x - .25 < trayectoriaBala) &&
+                if ((circle.position.x + .25 > balaX && circle.position.x - .25 < balaX) &&
                     (circle.position.y - .25 < balaY && circle.position.y + .25 > balaY)) {
                         colisionSonido.play()
-
+ 
                     for (let i = 0; i < 2; i++) {
                         game.scene.remove(circleList[i])
                     }
                     circleList.splice(index, 2)
+                    
 
                     //circleList.push(CircleMaker(this.circleTest, [0, 0, 0], 0x63ff63))
                     for (let i = 0; i < 2; i++) {
@@ -513,12 +536,17 @@ function loadGame() {
 
                     //circleList.push(CircleMaker(this.circleTest, [0, 0, 0], 0x63ff63))
                     for (let i = 0; i <= 3; i++) {
-                        diamondList.push(Square(this.diamond, [0, 0, 0], 0xffc763))
+                        diamondList.push(Square(this.square, [0, 0, 0], 0xffc763))
 
 
                     }
-                    diamondList.forEach(diamond => this.scene.add(diamond))
-
+                    console.log(diamondList)
+                    diamondList.forEach(diamond => {
+                        
+                        diamond.rotation.z = 1
+                        this.scene.add(diamond)
+                    }
+                    )
                     offCenter = 0
 
                 }
