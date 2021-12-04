@@ -15,13 +15,29 @@ function loadGame() {
     var diamondList = []
     var grades = 0
     var gradesReverse = 360
+    var gradosNave = 0
     var isoDegrees = 30
     var offCenter = 0
+    var offCenterDiamond = 0
+    var offCenterSquare = 0
+
+    var creciendoCirculo = true
+    var creciendoSquare = true
+    var creciendoDiamond = true
+
     var diamondDegrees = 75
     let nave = new THREE.Group()
     let naveCargada = false
     var coneList = []
     var disparando = false
+    var trayectoriaBala
+    const listener = new THREE.AudioListener()
+    game.camera.add(listener)
+    const disparoSonido = new THREE.Audio(listener)
+    const colisionSonido = new THREE.Audio(listener)
+    const audioLoader = new THREE.AudioLoader()
+
+    
 
     //
 
@@ -77,57 +93,16 @@ function loadGame() {
         this.light = new THREE.AmbientLight(0xffffff)
         this.scene.add(this.light)
 
-        //Circle enemy
-        //var circle = crearCirculo(this.scene)
         this.circleTest = new THREE.CircleGeometry(0.25, 32);
         this.square = new THREE.PlaneGeometry(0.5, 0.5);
 
         for (let i = 0; i < 2; i++) {
-            circleList.push(CircleMaker(this.circleTest, [-2 + 1, 2 + i, 0], 0x63ff63))
+            circleList.push(CircleMaker(this.circleTest, [2, 0, 0], 0x63ff63))
         }
 
         for (let i = 0; i <= 3; i++) {
             squareList.push(Square(this.square, [-3, 2, 0], 0xff00ff))
         }
-
-
-
-
-        //this.isoText = new THREE.TextGeometry("5", )
-
-
-
-        /*this.edges = new THREE.EdgesGeometry(this.circleTest);
-        this.line = new THREE.LineSegments(this.edges, new THREE.LineBasicMaterial({ color: 0x63ff63 }));
-        this.line.position.x = -2
-        this.line.position.y = 2
-        this.line.position.z = 0
-
-        this.line.rotation.x = 1
-
-        this.line2 = new THREE.LineSegments(this.edges, new THREE.LineBasicMaterial({ color: 0x63ff63 }));
-        this.line2.position.x = -2
-        this.line2.position.y = 2
-        this.line2.position.z = 0
-
-        this.line3 = new THREE.LineSegments(this.edges, new THREE.LineBasicMaterial({ color: 0x63ff63 }));
-        this.line3.position.x = -2
-        this.line3.position.y = 2
-        this.line3.position.z = 0
-
-        this.scene.add(this.line)
-        this.scene.add(this.line2)
-        this.scene.add(this.line3)*/
-
-
-        //circle enemy END
-
-        //Square enemy
-
-
-
-
-        //Square Enemy END
 
         //Duodecahedron power
 
@@ -204,6 +179,19 @@ function loadGame() {
         this.hexDraw4 = new THREE.Line(this.hexGeometry, new THREE.LineBasicMaterial({ color: 0xffffff }))
         this.hexDraw4.position.set(0, 0, 0)
 
+        audioLoader.load('./js/disparo.wav', function (buffer) {
+            disparoSonido.setBuffer(buffer);
+            disparoSonido.setLoop(false);
+            disparoSonido.setVolume(0.2)
+        })
+
+        audioLoader.load('./assets/soundEffects/hit.wav', function ( buffer ){
+            colisionSonido.setBuffer(buffer)
+            colisionSonido.setLoop(false)
+            colisionSonido.setVolume(0.5)
+        })
+
+
         // Hexaogno END
 
 
@@ -218,7 +206,11 @@ function loadGame() {
 
             object.rotation.z = 4.8
 
-
+            object.traverse((child)=>{
+                if(child.isMesh){
+                    child.material.wireframe = true
+                }
+            })
             nave = object
 
             // nave.scale.set(.05, .05,.1)
@@ -244,14 +236,35 @@ function loadGame() {
                 } if (code == 32) { // Spacebar (fire)++
 
                     if (coneList.length < 1) {
+                        // var sonido = new Audio('disparo.wav')
+                        // sonido.play()
+                        disparoSonido.play()
                         let cone
                         cone = disparo([nave.position.x, nave.position.y])
+                        disparando = true
                         coneList.push(cone)
-                        console.log(coneList)
-                        console.log(code)
-                    }  
+                    }
+                } if (code == 40) { // Arrow Down
+                    
 
 
+                    // x = cx + r * cos(a)
+                    // y = cy + r * sin(a)
+
+
+                    game.camera.rotation.z += 0.04
+                    gradosNave += 1
+                    nave.position.x.set()
+
+                } if (code == 38) { // Arrow Up
+                    game.camera.rotation.z -= 0.04
+                    gradosNave -= 1
+                    nave.position.set()
+                }
+                if(gradosNave < 0){
+                    gradosNave = 360
+                }if(gradosNave > 360){
+                    gradosNave = 0
                 }
 
             }
@@ -377,21 +390,19 @@ function loadGame() {
         this.polyDrawable.rotation.y -= (Math.PI / 3) * delta
         this.polyDrawable.rotation.z += (Math.PI / 3) * delta
 
-        if (naveCargada) {
-
-
-
-        }
         if (coneList.length > 0) {
             coneList.forEach(cone => {
                 this.scene.add(cone)
-                
+
             })
         }
-        coneList.forEach(cone =>{
+        coneList.forEach((cone) => {
             cone.position.x -= 0.2
-            if(cone.position.x <= 0){
+            trayectoriaBala = cone.position.x
+            if (cone.position.x <= 0) {
                 coneList.pop()
+                game.scene.remove(cone)
+                disparando = false
             }
         })
         /*coneList.forEach((cone)=>{
@@ -399,7 +410,7 @@ function loadGame() {
         })*/
 
 
-        isoList.forEach(ico => {
+        isoList.forEach((ico, index) => {
             ico.rotation.x += (Math.PI / 3) * delta
             ico.rotation.y += (Math.PI / 3) * delta
             ico.rotation.z -= (Math.PI / 3) * delta
@@ -407,6 +418,35 @@ function loadGame() {
 
         var circlePosFlag = []
         circleList.forEach((circle, index) => {
+            if (disparando) {
+                let bala = coneList[0]
+                var balaX = bala.position.x - 0.25
+                let balaY = bala.position.y
+
+                //impacto
+                if ((circle.position.x + .25 > trayectoriaBala && circle.position.x - .25 < trayectoriaBala) &&
+                    (circle.position.y - .25 < balaY && circle.position.y + .25 > balaY)) {
+                        colisionSonido.play()
+
+                    for (let i = 0; i < 2; i++) {
+                        game.scene.remove(circleList[i])
+                    }
+                    circleList.splice(index, 2)
+
+                    //circleList.push(CircleMaker(this.circleTest, [0, 0, 0], 0x63ff63))
+                    for (let i = 0; i < 2; i++) {
+                        circleList.push(CircleMaker(this.circleTest, [0, 0, 0], 0x63ff63))
+
+
+                    }
+                    circleList.forEach(circle => this.scene.add(circle))
+
+                    offCenter = 0
+
+
+
+                }
+            }
 
             var randomNum = Math.random()
             circle.rotation.x += (Math.PI / 2 * randomNum) * delta;
@@ -416,6 +456,9 @@ function loadGame() {
             circle.position.x = (offCenter + 2) * (Math.cos(grades / (180 / Math.PI)))
             if (circle.position.x > 8.5 || circle.position.x < -8.5
                 || circle.position.y > 8.5 || circle.position.y < -8.5) {
+                for (let i = 0; i < 2; i++) {
+                    game.scene.remove(circleList[i])
+                }
                 circleList.splice(index, 2)
 
                 //circleList.push(CircleMaker(this.circleTest, [0, 0, 0], 0x63ff63))
@@ -440,6 +483,8 @@ function loadGame() {
 
         this.polyDrawable.position.set((((offCenter - 1) + ((Math.cos(grades / (180 / Math.PI))))) * (Math.cos(grades / (180 / Math.PI)))), ((offCenter + 4) * (Math.sin(isoDegrees / (180 / Math.PI)))), 0)
 
+
+        //---------------------------------------------------DIAMOND--------------------------------        
         diamondList.forEach((diamond, index) => {
             var randomNum = Math.random()
             diamond.rotation.x += (Math.PI / 2 * randomNum) * delta;
@@ -451,17 +496,73 @@ function loadGame() {
                 ((offCenter + 3) + ((Math.cos(grades / (180 / Math.PI))))) * (Math.cos(diamondDegrees / (180 / Math.PI))),
                 ((offCenter + 3) + ((Math.sin(grades / (180 / Math.PI))))) * (Math.sin(diamondDegrees / (180 / Math.PI))),
                 0)
+            if (disparando) {
+                let bala = coneList[0]
+                var balaX = bala.position.x - 0.25
+                let balaY = bala.position.y
+
+                //impacto
+                if ((diamond.position.x + .25 > trayectoriaBala && diamond.position.x - .25 < trayectoriaBala) &&
+                    (diamond.position.y - .25 < balaY && diamond.position.y + .25 > balaY)) {
+                        colisionSonido.play()
+
+                    for (let i = 0; i <= 3; i++) {
+                        game.scene.remove(diamondList[i])
+                    }
+                    diamondList.splice(index, 2)
+
+                    //circleList.push(CircleMaker(this.circleTest, [0, 0, 0], 0x63ff63))
+                    for (let i = 0; i <= 3; i++) {
+                        diamondList.push(Square(this.diamond, [0, 0, 0], 0xffc763))
+
+
+                    }
+                    diamondList.forEach(diamond => this.scene.add(diamond))
+
+                    offCenter = 0
+
+                }
+            }
         })
         //                         ((offCenter + 2) * (Math.cos(gradesReverse / (180 / Math.PI)))), 
         //                         ((offCenter + 2) * (Math.sin(gradesReverse / (180 / Math.PI)))),
         //                          0)
         //
 
+        //-----------------------SQUARE-------------------------------------
         squareList.forEach((square, index) => {
             var randomNum = Math.random()
             square.rotation.x += (Math.PI / 2 * randomNum) * delta;
             square.rotation.y -= (Math.PI / (2 * randomNum)) * delta
             square.position.set(((offCenter - 3) * (Math.cos(gradesReverse / (180 / Math.PI)))), ((offCenter + 2) * (Math.sin(gradesReverse / (180 / Math.PI)))), 0)
+
+            if (disparando) {
+                let bala = coneList[0]
+                var balaX = bala.position.x - 0.25
+                let balaY = bala.position.y
+
+                //impacto
+                if ((square.position.x + .25 > trayectoriaBala && square.position.x - .25 < trayectoriaBala) &&
+                    (square.position.y - .25 < balaY && square.position.y + .25 > balaY)) {
+                        colisionSonido.play()
+
+                    for (let i = 0; i <= 3; i++) {
+                        game.scene.remove(squareList[i])
+                    }
+                    squareList.splice(index, 2)
+
+                    //circleList.push(CircleMaker(this.circleTest, [0, 0, 0], 0x63ff63))
+                    for (let i = 0; i <= 3; i++) {
+                        squareList.push(Square(this.square, [0, 0, 0], 0xff00ff))
+
+
+                    }
+                    squareList.forEach(square => this.scene.add(square))
+
+                    offCenter = 0
+
+                }
+            }
         })
 
 
@@ -480,7 +581,10 @@ function loadGame() {
         isoDegrees += 0.5
         gradesReverse -= 1.8
         offCenter += 0.004
+        offCenterDiamond += 0.004
+        offCenterSquare += 0.004
         diamondDegrees += 1.8
+
         if (grades >= 360) {
             grades = 0
         }
