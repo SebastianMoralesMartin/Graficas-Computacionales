@@ -36,7 +36,8 @@ function loadGame() {
     var newPolyScore = 4
     const lives = document.getElementById('vida')
     var newLives = 3
-    
+    const gameOVER = document.getElementById('title')
+
 
     var diamondDegrees = 75
     let nave = new THREE.Group()
@@ -52,35 +53,34 @@ function loadGame() {
     const fondo = new THREE.Audio(listener)
     const colisionPoly = new THREE.Audio(listener)
     const audioLoader = new THREE.AudioLoader()
-    const phone = new Audio(listener)
+    const phone = new THREE.Audio(listener)
+    const menu = new THREE.Audio(listener)
+    const finalScore = document.getElementById('finalScore')
 
 
-// nave fue atacada
-    audioLoader.load('./assets/soundEffects/damage.wav', function (buffer){
+    // nave fue atacada
+    audioLoader.load('./assets/soundEffects/damage.wav', function (buffer) {
         naveSonido.setBuffer(buffer)
         naveSonido.setVolume(0.5)
         naveSonido.setLoop(false)
-    } )
+    })
 
     // sonido para poligonos
 
-    audioLoader.load('./assets/soundEffects/polygon.wav', function(buffer){
+    audioLoader.load('./assets/soundEffects/polygon.wav', function (buffer) {
         colisionPoly.setBuffer(buffer)
         colisionPoly.setVolume(0.5)
         colisionPoly.setLoop(false)
     })
-    audioLoader.load('./assets/soundEffects/fondo.wav', function(buffer){
+    audioLoader.load('./assets/soundEffects/fondoFINAL.wav', function (buffer) {
         fondo.setBuffer(buffer)
-        fondo.setVolume(0.01)
+        fondo.setVolume(0.1)
         fondo.setLoop(true)
         fondo.play()
     })
+    
 
-    audioLoader.load('./assets/soundEffects/creepyPhone.wav', function(buffer){
-        phone.setBuffer(buffer)
-        phone.setVolume(1)
-        fondo.setLoop(true)
-    })
+
 
 
 
@@ -141,7 +141,7 @@ function loadGame() {
 
 
     game.init = function () {
-        
+
         this.scene.background = new THREE.Color(0x0)
 
         this.light = new THREE.AmbientLight(0xffffff)
@@ -294,14 +294,16 @@ function loadGame() {
                     }
 
                 } if (code == 32) { // Spacebar (fire)++
-
-                    if (coneList.length < 1) {
+                    if(!(newLives > 0 ^ newPolyScore > 0)){
+                        if (coneList.length < 1) {
                         disparoSonido.play()
                         let shot
                         shot = disparo([nave.position.x, nave.position.y])
                         disparando = true
                         coneList.push(shot)
                     }
+                    }
+                    
                 } if (code == 40) { // Arrow Down
                     //Queremos reducir los grados; la camara gira counter-clockwise.
                     // x = cx + r * cos(a)
@@ -416,18 +418,43 @@ function loadGame() {
 
     };
 
+
     game.update = function (delta) {
-        
+
         //-------------------- WIN STATE
 
-        if(newPolyScore == 0){
-            
+        if (newPolyScore == 0) {
+            nave.position.x = -100
+            fondo.stop()
+            audioLoader.load('./assets/soundEffects/menu.wav', function(buffer){
+                menu.setBuffer(buffer)
+                menu.setVolume(0.1)
+                menu.setLoop(true)
+                menu.play()
+            })
+            gameOVER.innerHTML = 'YOU WIN'
+            finalScore.innerHTML = 'Final Score: ' + newScore
+
         }
 
         //---------------------LOSE STATE
 
-        if(newLives <= 0){
+        if (newLives <= 0) {
             //console.log('BRUH')
+            nave.position.x = -100
+            game.scene.remove(nave)
+            fondo.stop()
+            audioLoader.load('./assets/soundEffects/creepyPhone.wav', function (buffer) {
+                phone.setBuffer(buffer)
+                phone.setVolume(0.5)
+                phone.setLoop(true)
+                phone.play()
+
+            })
+            gameOVER.innerHTML = "GAME OVER"
+            finalScore.innerHTML = 'Final Score: ' + newScore
+
+            
         }
 
 
@@ -483,19 +510,19 @@ function loadGame() {
         })*/
         //-----------------------POLYGONS----------------------------------
 
-        dodList.forEach(drawable =>{
+        dodList.forEach(drawable => {
             drawable.rotation.x -= (Math.PI / 3) * delta
             drawable.rotation.y += (Math.PI / 3) * delta
             drawable.rotation.z += (Math.PI / 3) * delta
             drawable.position.set(((offCenter + 3) * (Math.cos(gradesReverse / (180 / Math.PI)))),
                 ((offCenter - 2) * (Math.sin(gradesReverse / (180 / Math.PI)))),
                 0)
-    
+
             if (disparando) {
                 let bala = coneList[0]
                 var balaX = bala.position.x - 0.25
                 let balaY = bala.position.y
-    
+
                 //impacto
                 if ((drawable.position.x + .5 > balaX && drawable.position.x - .5 < balaX) &&
                     (drawable.position.y - .5 < balaY && drawable.position.y + .5 > balaY)) {
@@ -503,20 +530,20 @@ function loadGame() {
                     newPolyScore -= 1
                     polyScore.innerHTML = newPolyScore
 
-                    for(let i=0;i<dodList.length;i++){
+                    for (let i = 0; i < dodList.length; i++) {
                         dodList.pop()
                         game.scene.remove(drawable)
                     }
-    
+
                     console.log("LE DI A ALGUN POLYGONO SPONGO...")
-    
-                    
-    
-    
-    
+
+
+
+
+
                 }
             }
-            
+
         })
 
 
@@ -539,7 +566,7 @@ function loadGame() {
                     newPolyScore -= 1
                     polyScore.innerHTML = newPolyScore
 
-                    for(let i=0; i<polyList.length; i++){
+                    for (let i = 0; i < polyList.length; i++) {
                         polyList.pop()
                         game.scene.remove(poly)
                     }
@@ -586,19 +613,19 @@ function loadGame() {
 
 
 
-        tetList.forEach(tet =>{
+        tetList.forEach(tet => {
             tet.rotation.x -= (Math.PI / 3) * delta
             tet.rotation.y += (Math.PI / 3) * delta
             tet.rotation.z -= (Math.PI / 3) * delta
             tet.position.set(offCenter + ((1) * (Math.cos(isoDegrees / (180 / Math.PI)))),
                 offCenter + ((1) * (Math.sin(isoDegrees / (180 / Math.PI)))),
                 0)
-                
+
             if (disparando) {
                 let bala = coneList[0]
                 var balaX = bala.position.x - 0.25
                 let balaY = bala.position.y
-    
+
                 //impacto
                 if ((tet.position.x + .5 > balaX && tet.position.x - .5 < balaX) &&
                     (tet.position.y - .5 < balaY && tet.position.y + .5 > balaY)) {
@@ -606,36 +633,36 @@ function loadGame() {
                     newPolyScore -= 1
                     polyScore.innerHTML = newPolyScore
 
-                    for(let i =0; i<tetList.length;i++){
+                    for (let i = 0; i < tetList.length; i++) {
                         tetList.pop()
                         game.scene.remove(tet)
                     }
-    
+
                     console.log("LE DI AL ISO")
-    
+
                     // for (let i = 0; i < 2; i++) {
                     //     game.scene.remove(circleList[i])
                     // }
-    
+
                     // circleList.splice(index, 2)
-    
-    
+
+
                     // //circleList.push(CircleMaker(this.circleTest, [0, 0, 0], 0x63ff63))
                     // for (let i = 0; i < 2; i++) {
                     //     circleList.push(CircleMaker(this.circleTest, [0, 0, 0], 0x63ff63))
-    
-    
+
+
                     // }
                     // circleList.forEach(circle => this.scene.add(circle))
-    
-                    
-    
-    
-    
+
+
+
+
+
                 }
             }
-    
-            
+
+
         })
 
 
@@ -672,23 +699,23 @@ function loadGame() {
                     circleList.forEach(circle => this.scene.add(circle))
 
                     offCenter = 0
-                    grades = getRandomArbitrary(0,360)
+                    grades = getRandomArbitrary(0, 360)
 
 
 
                 }
             }
-            if(naveCargada){
+            if (naveCargada) {
                 var naveX = nave.position.x
                 var naveY = nave.position.y
-                if ((naveX + 1 > circle.position.x + .25 && naveX-1 < circle.position.x - .25) &&
-                (naveY-.375 < circle.position.y - .25 && naveY + .375 > circle.position.y)) {
+                if ((naveX + 1 > circle.position.x + .25 && naveX - 1 < circle.position.x - .25) &&
+                    (naveY - .375 < circle.position.y - .25 && naveY + .375 > circle.position.y)) {
                     naveSonido.play()
 
-                    newLives -=1
+                    newLives -= 1
                     lives.innerHTML = newLives
 
-                     for (let i = 0; i < 2; i++) {
+                    for (let i = 0; i < 2; i++) {
                         game.scene.remove(circleList[i])
                     }
                     circleList.splice(index, 2)
@@ -703,10 +730,11 @@ function loadGame() {
                     circleList.forEach(circle => this.scene.add(circle))
 
                     offCenter = 0
-                    grades = getRandomArbitrary(0,360)
-                }}
+                    grades = getRandomArbitrary(0, 360)
+                }
+            }
 
-            
+
 
 
             var randomNum = Math.random()
@@ -791,10 +819,10 @@ function loadGame() {
                 var naveX = nave.position.x
                 var naveY = nave.position.y
 
-                if ((naveX + 1 > diamond.position.x + .25 && naveX-1 < diamond.position.x - .25) &&
-                (naveY-.375 < diamond.position.y - .25 && naveY + .375 > diamond.position.y)) {
+                if ((naveX + 1 > diamond.position.x + .25 && naveX - 1 < diamond.position.x - .25) &&
+                    (naveY - .375 < diamond.position.y - .25 && naveY + .375 > diamond.position.y)) {
                     naveSonido.play()
-                    newLives -=1
+                    newLives -= 1
                     lives.innerHTML = newLives
 
 
@@ -817,11 +845,11 @@ function loadGame() {
                     )
                     offCenterDiamond = 0
                     grades = getRandomArbitrary(0, 360)
-                    
-                
+
+
                 }
 
-                
+
             }
         })
         //                         ((offCenter + 2) * (Math.cos(gradesReverse / (180 / Math.PI)))), 
@@ -871,10 +899,10 @@ function loadGame() {
                 var naveX = nave.position.x
                 var naveY = nave.position.y
 
-                if ((naveX + 1 > square.position.x + .25 && naveX-1 < square.position.x - .25) &&
-                (naveY-.375 < square.position.y - .25 && naveY + .375 > square.position.y)) {
+                if ((naveX + 1 > square.position.x + .25 && naveX - 1 < square.position.x - .25) &&
+                    (naveY - .375 < square.position.y - .25 && naveY + .375 > square.position.y)) {
                     naveSonido.play()
-                    newLives -=1
+                    newLives -= 1
                     lives.innerHTML = newLives
 
 
@@ -893,11 +921,11 @@ function loadGame() {
 
                     offCenterSquare = 0
                     gradesReverse = getRandomArbitrary(0, 360)
-                    
-                
+
+
                 }
 
-                
+
             }
         })
 
@@ -970,8 +998,14 @@ function loadGame() {
     };
 
 
+
+
+
     game.init();
     game.tick();
+    
+
+
 }
 
 window.onload = function () {

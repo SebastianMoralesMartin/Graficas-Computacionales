@@ -33,6 +33,8 @@ import * as THREE from '../../libs/three.js/r131/three.module.js'
                 drawable.position.set(2, -3, 0)
                 scene.add(drawable)
 
+
+
                 renderer.render(scene,camera)
 
 				

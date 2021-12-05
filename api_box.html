@@ -1,47 +1,73 @@
 <!doctype html>
-<html>
+<html style="background-color: black;">
+
 <head>
-    <title>Muestra de Assets</title>
+    <title>POLYBIUS</title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="style.css" type="text/css">
 
 
     <script type="module" defer src="js/api_box.js"></script>
-    
+
 
 </head>
+
 <body>
 
 
-    
 
-        
-    <div class='container'>
-        <canvas id="demo" width="512" height="512"></canvas>    
-        <DIV id = "scoreText" >
-            SCORE = 
+
+
+    <div class='container' >
+        <canvas id="demo" width="512" height="512"></canvas>
+        <DIV id="scoreText">
+            SCORE =
         </DIV>
         <div id='score'>0</div>
-        <div id= 'center' style='font-size: 20px;font-family: Polybius; position: absolute; top: 500px; left: 350px; color: white;'>Score Left to pass: </div>
-        <div id='centerScore' style= 'position: absolute; color:rgb(250, 69, 69);
+        <div id='center'
+            style='font-size: 20px;font-family: Polybius; position: absolute; top: 500px; left: 350px; color: white;'>
+            Score Left to pass: </div>
+        <div id='centerScore' style='position: absolute; color:rgb(250, 69, 69);
         left: 490px;
         top: 495px;
         font-family: AlarmClock;
         font-size: 20px;'>4</div>
-    <div id= 'vidaText' style='font-size: 20px;font-family: Polybius; position: absolute; top: 20px; left: 425px; color: white;'>Lives: </div>
+        <div id='vidaText'
+            style='font-size: 20px;font-family: Polybius; position: absolute; top: 20px; left: 425px; color: white;'>
+            Lives: </div>
 
         <div id='vida' style='position: absolute; color:rgb(250, 69, 69);
         left: 475px;
         top: 20px;
         font-family: AlarmClock;
         font-size: 20px;'>3</div>
-            
-        
+        <div id='title' style=></div>
+        <div id='finalScore' style='position: absolute;
+        color:white;
+        left: 170px;
+        top: 150px;
+        font-family: Polybius;
+        font-size: 30px;'></div>
+        <div style="background-color: black; color:blanchedalmond; font-family: Polybius; font-size: 75px;"
+        onCLick='return1();' title="if you dare...">PRESS HERE to RESTART</div>
+
+
+
+
+
     </div>
-        
-        </aside>
+
+    </aside>
+    <script>
+        function return1()
+        {
+            window.location.href = 'api_box.html';
+            return false;
+        }
+    </script>
 
 
 
 </body>
+
 </html>
