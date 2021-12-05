@@ -314,10 +314,8 @@ function loadGame() {
         // this.icoDrawable = new THREE.LineSegments(this.icoEdges, new THREE.LineBasicMaterial({ color: 0xffffff }))
         // this.icoDrawable.position.set(3.8, -1, 3.9)
 
+        isoList.push(isocaedro(this.icosaedro, [1.8, -1, 3.9]))
 
-        for (let i = 0; i < 3; i++) {
-            isoList.push(isocaedro(this.icosaedro, [1.8 + i, -1, 3.9 + i]))
-        }
         //isocaedro(this.scene, this.icosaedro, [3.8, -1, 3.9])
 
         //Tetrahedron
@@ -380,11 +378,10 @@ function loadGame() {
 
         // this.diamondLine2.rotation.y -= (Math.PI / 3) * delta
 
-        this.drawable.rotation.x -= (Math.PI / 3) * delta
-        this.drawable.rotation.y += (Math.PI / 3) * delta
-        this.drawable.rotation.z += (Math.PI / 3) * delta
-        this.drawable.position.set(((offCenter + 3) * (Math.cos(gradesReverse / (180 / Math.PI)))), ((offCenter - 2) * (Math.sin(gradesReverse / (180 / Math.PI)))), 0)
+  
 
+
+        //---------------------HEX CENTER PIECE
         this.hexDrawable.rotation.x -= (Math.PI / 3) * delta
         this.hexDrawable.rotation.y += (Math.PI / 3) * delta
         this.hexDrawable.rotation.z += (Math.PI / 3) * delta
@@ -393,13 +390,16 @@ function loadGame() {
         this.hexDraw2.rotation.y -= (Math.PI / 3) * delta
         this.hexDraw2.rotation.z -= (Math.PI / 3) * delta
 
+        //HEX3 ES LA FIGURA ESTATICA DE BASE
+
         this.hexDraw4.rotation.x += (Math.PI / 76) * delta
         this.hexDraw4.rotation.y += (Math.PI / 2) * delta
         this.hexDraw4.rotation.z -= (Math.PI / 3) * delta
 
-        this.polyDrawable.rotation.x -= (Math.PI / 3) * delta
-        this.polyDrawable.rotation.y -= (Math.PI / 3) * delta
-        this.polyDrawable.rotation.z += (Math.PI / 3) * delta
+        
+
+
+        
 
         if (coneList.length > 0) {
             coneList.forEach(shot => {
@@ -429,13 +429,173 @@ function loadGame() {
         /*coneList.forEach((shot)=>{
             this.scene.add(shot)
         })*/
+//-----------------------POLYGONS----------------------------------
+        this.drawable.rotation.x -= (Math.PI / 3) * delta
+        this.drawable.rotation.y += (Math.PI / 3) * delta
+        this.drawable.rotation.z += (Math.PI / 3) * delta
+        this.drawable.position.set(((offCenter + 3) * (Math.cos(gradesReverse / (180 / Math.PI)))),
+                                   ((offCenter - 2) * (Math.sin(gradesReverse / (180 / Math.PI)))),
+                                    0)
+
+        if (disparando) {
+            let bala = coneList[0]
+            var balaX = bala.position.x - 0.25
+            let balaY = bala.position.y
+
+            //impacto
+            if ((this.drawable.position.x + .5 > balaX && this.drawable.position.x - .5 < balaX) &&
+                (this.drawable.position.y - .5 < balaY && this.drawable.position.y + .5 > balaY)) {
+                    colisionSonido.play()
+                
+                console.log("LE DI A ALGUN POLYGONO SPONGO...")
+
+                // for (let i = 0; i < 2; i++) {
+                //     game.scene.remove(circleList[i])
+                // }
+
+                // circleList.splice(index, 2)
+                
+
+                // //circleList.push(CircleMaker(this.circleTest, [0, 0, 0], 0x63ff63))
+                // for (let i = 0; i < 2; i++) {
+                //     circleList.push(CircleMaker(this.circleTest, [0, 0, 0], 0x63ff63))
 
 
-        isoList.forEach((ico, index) => {
-            ico.rotation.x += (Math.PI / 3) * delta
-            ico.rotation.y += (Math.PI / 3) * delta
-            ico.rotation.z -= (Math.PI / 3) * delta
-        });
+                // }
+                // circleList.forEach(circle => this.scene.add(circle))
+
+                offCenter = 0
+
+
+
+            }
+        }
+
+        this.polyDrawable.rotation.x -= (Math.PI / 3) * delta
+        this.polyDrawable.rotation.y -= (Math.PI / 3) * delta
+        this.polyDrawable.rotation.z += (Math.PI / 3) * delta
+        this.polyDrawable.position.set((((offCenter - 1) + ((Math.cos(grades / (180 / Math.PI))))) * (Math.cos(grades / (180 / Math.PI)))),
+                                        ((offCenter + 4) * (Math.sin(isoDegrees / (180 / Math.PI)))),
+                                         0)
+        if (disparando) {
+            let bala = coneList[0]
+            var balaX = bala.position.x - 0.25
+            let balaY = bala.position.y
+
+            //impacto
+            if ((  this.polyDrawable.position.x + .5 > balaX &&   this.polyDrawable.position.x - .5 < balaX) &&
+                (  this.polyDrawable.position.y - .5 < balaY &&   this.polyDrawable.position.y + .5 > balaY)) {
+                    colisionSonido.play()
+                
+                console.log("LE DI AL POLYDRAW")
+
+                // for (let i = 0; i < 2; i++) {
+                //     game.scene.remove(circleList[i])
+                // }
+
+                // circleList.splice(index, 2)
+                
+
+                // //circleList.push(CircleMaker(this.circleTest, [0, 0, 0], 0x63ff63))
+                // for (let i = 0; i < 2; i++) {
+                //     circleList.push(CircleMaker(this.circleTest, [0, 0, 0], 0x63ff63))
+
+
+                // }
+                // circleList.forEach(circle => this.scene.add(circle))
+
+                offCenter = 0
+
+
+
+            }
+        }
+
+        isoList[0].rotation.x += (Math.PI / 3) * delta
+        isoList[0].rotation.y += (Math.PI / 3) * delta
+        isoList[0].rotation.z -= (Math.PI / 3) * delta
+        isoList[0].position.set((((offCenter + 2) + ((Math.cos(grades / (180 / Math.PI))))) * (Math.cos(isoDegrees / (180 / Math.PI)))),
+                                 ((offCenter + 2) * (Math.sin(isoDegrees / (180 / Math.PI)))),
+                                   0)
+
+        if (disparando) {
+            let bala = coneList[0]
+            var balaX = bala.position.x - 0.25
+            let balaY = bala.position.y
+
+            //impacto
+            if ((  isoList[0].position.x + .5 > balaX &&   isoList[0].position.x - .5 < balaX) &&
+                (  isoList[0].position.y - .5 < balaY &&   isoList[0].position.y + .5 > balaY)) {
+                    colisionSonido.play()
+                
+                console.log("LE DI AL ISO")
+
+                // for (let i = 0; i < 2; i++) {
+                //     game.scene.remove(circleList[i])
+                // }
+
+                // circleList.splice(index, 2)
+                
+
+                // //circleList.push(CircleMaker(this.circleTest, [0, 0, 0], 0x63ff63))
+                // for (let i = 0; i < 2; i++) {
+                //     circleList.push(CircleMaker(this.circleTest, [0, 0, 0], 0x63ff63))
+
+
+                // }
+                // circleList.forEach(circle => this.scene.add(circle))
+
+                offCenter = 0
+
+
+
+            }
+        }
+              
+        this.tetDrawable.rotation.x -= (Math.PI / 3) * delta
+        this.tetDrawable.rotation.y += (Math.PI / 3) * delta
+        this.tetDrawable.rotation.z -= (Math.PI / 3) * delta
+        this.tetDrawable.position.set(isoList[0].position.x + ((1) * (Math.cos(isoDegrees / (180 / Math.PI)))),
+                                      isoList[0].position.y + ((1) * (Math.sin(isoDegrees / (180 / Math.PI)))), 
+                                      0)
+        if (disparando) {
+            let bala = coneList[0]
+            var balaX = bala.position.x - 0.25
+            let balaY = bala.position.y
+
+            //impacto
+            if ((this.tetDrawable.position.x + .5 > balaX && this.tetDrawable.position.x - .5 < balaX) &&
+                (this.tetDrawable.position.y - .5 < balaY && this.tetDrawable.position.y + .5 > balaY)) {
+                    colisionSonido.play()
+                
+                console.log("LE DI AL ISO")
+
+                // for (let i = 0; i < 2; i++) {
+                //     game.scene.remove(circleList[i])
+                // }
+
+                // circleList.splice(index, 2)
+                
+
+                // //circleList.push(CircleMaker(this.circleTest, [0, 0, 0], 0x63ff63))
+                // for (let i = 0; i < 2; i++) {
+                //     circleList.push(CircleMaker(this.circleTest, [0, 0, 0], 0x63ff63))
+
+
+                // }
+                // circleList.forEach(circle => this.scene.add(circle))
+
+                offCenter = 0
+
+
+
+            }
+        }
+        
+
+
+
+
 
         var circlePosFlag = []
         circleList.forEach((circle, index) => {
@@ -443,7 +603,6 @@ function loadGame() {
                 let bala = coneList[0]
                 var balaX = bala.position.x - 0.25
                 let balaY = bala.position.y
-                console.log(coneList[0].position.x)
 
                 //impacto
                 if ((circle.position.x + .25 > balaX && circle.position.x - .25 < balaX) &&
@@ -499,12 +658,7 @@ function loadGame() {
 
         })
 
-        isoList.forEach((iso, index) => {
-            iso.position.set((((offCenter + 2) + ((Math.cos(grades / (180 / Math.PI))))) * (Math.cos(isoDegrees / (180 / Math.PI)))), ((offCenter + 2) * (Math.sin(isoDegrees / (180 / Math.PI)))), 0)
-            this.tetDrawable.position.set(iso.position.x + ((1) * (Math.cos(isoDegrees / (180 / Math.PI)))), iso.position.y + ((1) * (Math.sin(isoDegrees / (180 / Math.PI)))), 0)
-        })
 
-        this.polyDrawable.position.set((((offCenter - 1) + ((Math.cos(grades / (180 / Math.PI))))) * (Math.cos(grades / (180 / Math.PI)))), ((offCenter + 4) * (Math.sin(isoDegrees / (180 / Math.PI)))), 0)
 
 
         //---------------------------------------------------DIAMOND--------------------------------        
@@ -540,7 +694,6 @@ function loadGame() {
 
 
                     }
-                    console.log(diamondList)
                     diamondList.forEach(diamond => {
                         
                         diamond.rotation.z = 1
@@ -601,9 +754,7 @@ function loadGame() {
         // this.icoDrawable.rotation.y += (Math.PI / 3) * delta
         // this.icoDrawable.rotation.z -= (Math.PI / 3) * delta
 
-        this.tetDrawable.rotation.x -= (Math.PI / 3) * delta
-        this.tetDrawable.rotation.y += (Math.PI / 3) * delta
-        this.tetDrawable.rotation.z -= (Math.PI / 3) * delta
+
 
         grades += 1.8;
         isoDegrees += 0.5
