@@ -1,0 +1,39 @@
+
+@font-face{
+    font-family: 'AlarmClock';
+    src: url("assets/Fonts/alarm_clock/alarm clock.ttf")
+}
+
+@font-face{
+    font-family: 'Polybius';
+    src: url("assets/Fonts/polybius1981/Polybius1981.ttf")
+}
+
+
+
+#title {
+	position:absolute;
+    color: white;
+	left:20px;
+	top:20px;
+    font-family: 'Polybius';
+    font-size: 125px;
+    
+    
+}
+#score{
+    position: absolute;
+    color:rgb(250, 69, 69);
+    left: 100px;
+    top: 492px;
+    font-family: 'AlarmClock';
+    font-size: 20px;
+}
+#scoreText{
+    position: absolute;
+    color:white;
+    left: 20px;
+    top: 490px;
+    font-family: 'Polybius';
+    font-size: 30px;
+}
